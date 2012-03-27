@@ -19,7 +19,7 @@
 class TaxonomyNode {
 	
 public:
-//	TaxonomyNode();
+	TaxonomyNode();
 	TaxonomyNode(string, int);
 	void setName(string);
 	string getName();
