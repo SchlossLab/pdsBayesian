@@ -15,7 +15,6 @@
 
 KmerTree::KmerTree(string referenceFileName, string taxonomyFileName, int k) : kmerSize(k){
 	
-	
 	TaxonomyNode* newNode = new KmerNode("Root", 0, kmerSize);
 	tree.push_back(newNode);			//	the tree is stored as a vector of elements of type TaxonomyNode
 	
@@ -43,7 +42,6 @@ KmerTree::KmerTree(string referenceFileName, string taxonomyFileName, int k) : k
 	
 	numTaxa = (int)tree.size();
 	
-	cout << tree[0]->getNumUniqueKmers() << endl;
 	numLevels = 0;
 	for(int i=0;i<numTaxa;i++){
 		int level = tree[i]->getLevel();
@@ -71,10 +69,10 @@ void KmerTree::addTaxonomyToTree(string taxonomy, string sequence){
 		
 		if(taxonomy[i] == ';'){						//	looking for semicolons...
 			
-			int newIndex = tree[treePosition]->getChildIndex(taxonName);	//	look to see if your current node already
-			//	has a child with the new taxonName
+			int newIndex = tree[treePosition]->getChildIndex(taxonName);//	look to see if your current node already
+																		//	   has a child with the new taxonName
 			if(newIndex != -1)	{	treePosition = newIndex;	}		//	if you've seen it before, jump to that
-			else {														//	 position in the tree
+			else {														//	   position in the tree
 				int newChildIndex = (int)tree.size();					//	otherwise, we'll have to create one...
 				tree[treePosition]->makeChild(taxonName, newChildIndex);
 				
@@ -91,9 +89,12 @@ void KmerTree::addTaxonomyToTree(string taxonomy, string sequence){
 			
 			taxonName = "";								//	clear out the taxon name that we will build as we look 
 			level++;
+			
 		}												//	for a semicolon
 		else{
+			
 			taxonName += taxonomy[i];					//	keep adding letters until we reach a semicolon
+		
 		}
 	}
 }

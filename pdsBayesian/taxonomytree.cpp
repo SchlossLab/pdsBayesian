@@ -121,7 +121,7 @@ void TaxonomyTree::sanityCheck(vector<vector<int> > indices, vector<int> maxIndi
 
 void TaxonomyTree::classifyQuery(string seqName, string querySequence, string& taxonProbabilityString, string& levelProbabilityString){
 	
-	double logPOutlier = getOutlierLogProbability(querySequence);
+	double logPOutlier = -10000;//getOutlierLogProbability(querySequence);
 
 	vector<vector<double> > pXgivenKj_D_j(numLevels);
 	vector<vector<int> > indices(numLevels);
@@ -144,10 +144,10 @@ void TaxonomyTree::classifyQuery(string seqName, string querySequence, string& t
 	for(int i=0;i<numLevels;i++){
 		
 		levelProbability[i] = getLogExpSum(pXgivenKj_D_j[i], maxIndex[i]);
-		
 		int numTaxaInLevel = (int)indices[i].size();
 		
 		vector<double> posteriors(numTaxaInLevel, 0);
+		
 		for(int j=0;j<numTaxaInLevel;j++){
 			posteriors[j] = exp(pXgivenKj_D_j[i][j] - levelProbability[i]);
 		}
@@ -160,12 +160,18 @@ void TaxonomyTree::classifyQuery(string seqName, string querySequence, string& t
 
 	double allLevelSum = getLogExpSum(levelProbability, maxLevel);
 
-	for(int i=0;i<numLevels;i++){	levelProbability[i] -= log(indices[i].size());	}
+	for(int i=0;i<numLevels;i++){
+		levelProbability[i] -= log(indices[i].size());	
+		cout << i << '\t' << indices[i].size() << '\t' << levelProbability[i] << endl;	
+	
+	}
+	
 	
 	allLevelSum = getLogExpSum(levelProbability, maxLevel);
 
 	double levelPosterior = exp(levelProbability[maxLevel] - allLevelSum);
-	
+
+	cout << allLevelSum << '\t' << levelPosterior << endl;
 
 	sanityCheck(indices, maxIndex, maxLevel);
 	
@@ -183,12 +189,12 @@ void TaxonomyTree::classifyQuery(string seqName, string querySequence, string& t
 
 	for(int i=1;i<numLevels;i++){
 		if(indices[i][maxIndex[i]] != -1){
-			taxonProbabilityOutput << tree[indices[i][maxIndex[i]]]->getName() << '(' << setprecision(1) << bestPosterior[i] * 100 << ");";
-			levelProbabilityOutput << tree[indices[i][maxIndex[i]]]->getName() << '(' << setprecision(1) << exp(levelProbability[i] - allLevelSum) << ");";
+			taxonProbabilityOutput << tree[indices[i][maxIndex[i]]]->getName() << '(' << setprecision(6) << bestPosterior[i] << ");";
+			levelProbabilityOutput << tree[indices[i][maxIndex[i]]]->getName() << '(' << setprecision(6) << exp(levelProbability[i] - allLevelSum) << ");";
 		}
 		else{
-			taxonProbabilityOutput << "incertae_sedis" << '(' << setprecision(1) << bestPosterior[i] * 100 << ");";
-			levelProbabilityOutput << "incertae_sedis" << '(' << setprecision(1) << exp(levelProbability[i] - allLevelSum) << ");";
+			taxonProbabilityOutput << "incertae_sedis" << '(' << setprecision(6) << bestPosterior[i] << ");";
+			levelProbabilityOutput << "incertae_sedis" << '(' << setprecision(6) << exp(levelProbability[i] - allLevelSum) << ");";
 		}
 
 	}

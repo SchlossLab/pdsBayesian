@@ -152,17 +152,9 @@ double KmerNode::getPxGivenkj_D_j(string query)	{
 
 	vector<int> queryKmerProfile = ripKmerProfile(query);
 	
-	cout << name << '\t' << numSeqs <<  '\t' << numUniqueKmers << endl;
-	for(int i=0;i<numPossibleKmers;i++){
-		if(queryKmerProfile[i] != 0){
-			cout << getKmerBases(i) << '\t' << kmerVector[i] << '\t' << queryKmerProfile[i] << endl;
-		}
-	}
-
 	double sumLogProb = 0.0000;
-	
 	double correction = pow((1.0/(double)numUniqueKmers), numSeqs) + 0.0001;
-	
+
 	for(int i=0;i<numPossibleKmers;i++){
 		
 		if(queryKmerProfile[i] != 0){									//numUniqueKmers needs to be the value from Root;
@@ -171,9 +163,6 @@ double KmerNode::getPxGivenkj_D_j(string query)	{
 		
 	}
 	
-	cout << sumLogProb << endl;
-	cout << endl;	
-
 	return sumLogProb;
 }
 
