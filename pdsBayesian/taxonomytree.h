@@ -15,12 +15,12 @@
 class TaxonomyTree {
 	
 public:
-	TaxonomyTree(string, string, string);
+	TaxonomyTree(){};
 	~TaxonomyTree();
-	void addTaxonomyToTree(string, string);
+	virtual void addTaxonomyToTree(string, string) = 0;
 	void classifyQuery(string, string, string&, string&);
 
-private:
+protected:
 	double getOutlierLogProbability(string);
 	double getLogExpSum(vector<double>, int&);
 	int getMinRiskIndex(string, vector<int>, vector<double>);
@@ -29,7 +29,6 @@ private:
 	vector<TaxonomyNode*> tree;
 	int numTaxa;
 	int numLevels;
-	string method;
 };
 
 #endif

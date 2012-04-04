@@ -14,6 +14,9 @@
 #include "bayesian.h"
 #include "taxonomynode.h"
 #include "taxonomytree.h"
+#include "aligntree.h"
+#include "kmertree.h"
+
 
 /**************************************************************************************************/
 
@@ -26,6 +29,7 @@ int main(int argc, char *argv[]){
 	string referenceFileName;	//	the name of the file that contains the reference sequences
 	string queryFileName;		//	the name of the file that contains the query sequences, aligned on the
 								//	  same basis as the reference sequences
+	int kmerSize = 8;
 	string method = "align";
 	
 	if(argc > 1) {
@@ -62,11 +66,26 @@ int main(int argc, char *argv[]){
 					cerr << "Error: must provide query file." << endl;
 				}
 			}
+			else if(strcmp(*p,"-ksize")==0) {
+				if(++p>=argv+argc){}
+				istringstream f(*p);
+				if(!(f >> kmerSize)){}
+				if(referenceFileName=="") {
+					cerr << "Error: must provide reference file." << endl;
+				}
+			}
 		}
 	}
 		
 	cout << "Building database..." << endl;
-	TaxonomyTree database(referenceFileName, taxonomyFileName, method);	//build the tree structure that holds the reference
+	TaxonomyTree* database;
+	
+	if(method == "align"){
+		database = new AlignTree(referenceFileName, taxonomyFileName);	//build the tree structure that holds the reference
+	}
+	else if(method == "kmer"){
+		database = new KmerTree(referenceFileName, taxonomyFileName, kmerSize);	//build the tree structure that holds the reference
+	}
 	
 	string taxProbFileName = queryFileName.substr(0,queryFileName.find_last_of('.')) + ".tprob.taxonomy";
 	ofstream taxProbFile(taxProbFileName.c_str());
@@ -90,7 +109,7 @@ int main(int argc, char *argv[]){
 		
 		gobble(queryFile);
 
-		database.classifyQuery(seqName, sequence, taxonProbOutput, levelProbOutput);
+		database->classifyQuery(seqName, sequence, taxonProbOutput, levelProbOutput);
 		
 		taxProbFile << taxonProbOutput << endl;
         levelProbFile << levelProbOutput << endl;

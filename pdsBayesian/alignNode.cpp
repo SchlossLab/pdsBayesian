@@ -32,7 +32,7 @@ void AlignNode::printTheta(){
 
 void AlignNode::loadSequence(string sequence){
 	
-	alignLength = sequence.length();		//	this function runs through the alignment and increments the frequency
+	alignLength = (int)sequence.length();	//	this function runs through the alignment and increments the frequency
 	//	of each base for a particular taxon.  we are building the thetas
 	
 	if(theta.size() == 0){

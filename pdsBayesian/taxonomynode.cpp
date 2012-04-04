@@ -12,15 +12,6 @@
 #include "taxonomynode.h"
 
 /**************************************************************************************************/
-//
-//TaxonomyNode::TaxonomyNode(){
-//	name = "Root";
-//	parent = -1;
-//	numChildren = 0;
-//	numSeqs = 0;
-//}
-//
-/**************************************************************************************************/
 
 TaxonomyNode::TaxonomyNode(string n, int l): name(n), level(l){
 	parent = -1;
@@ -63,7 +54,7 @@ int TaxonomyNode::getChildIndex(string c){
 
 /**************************************************************************************************/
 
-int	TaxonomyNode::getNumKids()					{	return children.size();		}
+int	TaxonomyNode::getNumKids()					{	return (int)children.size();		}
 
 /**************************************************************************************************/
 

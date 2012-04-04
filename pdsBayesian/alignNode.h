@@ -36,6 +36,7 @@ public:
 	double getSimToConsensus(string query);
     
 	
+	
 private:
 
 	vector<thetaAlign> theta;

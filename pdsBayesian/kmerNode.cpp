@@ -42,11 +42,49 @@ void KmerNode::loadSequence(string sequence){
 
 void KmerNode::printTheta(){
 	
+	cout << name << endl;
 	for(int i=0;i<numPossibleKmers;i++){
-		cout << kmerVector[i] << '\t';
+		if(kmerVector[i] != 0){
+			cout << getKmerBases(i) << '\t' << kmerVector[i] << endl;
+		}
 	}
 	cout << endl;	
 	
+}
+
+/**********************************************************************************************************************/
+
+string KmerNode::getKmerBases(int kmerNumber){
+	
+	//	Here we convert the kmer number into the kmer in terms of bases.
+	//
+	//	Example:	Score = 915 (for a 6-mer)
+	//				Base6 = (915 / 4^0) % 4 = 915 % 4 = 3 => T	[T]
+	//				Base5 = (915 / 4^1) % 4 = 228 % 4 = 0 => A	[AT]
+	//				Base4 = (915 / 4^2) % 4 = 57 % 4 = 1 => C	[CAT]
+	//				Base3 = (915 / 4^3) % 4 = 14 % 4 = 2 => G	[GCAT]
+	//				Base2 = (915 / 4^4) % 4 = 3 % 4 = 3 => T	[TGCAT]
+	//				Base1 = (915 / 4^5) % 4 = 0 % 4 = 0 => A	[ATGCAT] -> this checks out with the previous method
+	
+	int power4s[14] = { 1, 4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 };
+	
+	string kmer = "";
+	
+	if(kmerNumber == power4s[kmerSize]){//pow(4.,7)){	//	if the kmer number is the same as the maxKmer then it must
+		for(int i=0;i<kmerSize;i++){					//	have had an N in it and so we'll just call it N x kmerSize
+			kmer += 'N';
+		}
+	}
+	else{
+		for(int i=0;i<kmerSize;i++){
+			int nt = (int)(kmerNumber / (float)power4s[i]) % 4;		//	the '%' operator returns the remainder 
+			if(nt == 0)		{	kmer = 'A' + kmer;	}				//	from int-based division ]
+			else if(nt == 1){	kmer = 'C' + kmer;	}
+			else if(nt == 2){	kmer = 'G' + kmer;	}
+			else if(nt == 3){	kmer = 'T' + kmer;	}
+		}
+	}
+	return kmer;
 }
 
 /**********************************************************************************************************************/
@@ -57,7 +95,7 @@ vector<int> KmerNode::ripKmerProfile(string alignSequence){
 
 	string unalignSequence;
 	
-	int alignLength = alignSequence.length();	//	this function runs through the alignment and increments the frequency
+	int alignLength = (int)alignSequence.length();	//	this function runs through the alignment and increments the frequency
 												//	of each base for a particular taxon.  we are building the thetas
 	
 	for(int i=0;i<alignLength;i++){
@@ -67,7 +105,7 @@ vector<int> KmerNode::ripKmerProfile(string alignSequence){
 	}
 
 	
-	int nKmers = unalignSequence.length() - kmerSize + 1;
+	int nKmers = (int)unalignSequence.length() - kmerSize + 1;
 	
 	vector<int> kmerProfile(numPossibleKmers + 1, 0);
 	
@@ -114,20 +152,28 @@ double KmerNode::getPxGivenkj_D_j(string query)	{
 
 	vector<int> queryKmerProfile = ripKmerProfile(query);
 	
+	cout << name << '\t' << numSeqs <<  '\t' << numUniqueKmers << endl;
+	for(int i=0;i<numPossibleKmers;i++){
+		if(queryKmerProfile[i] != 0){
+			cout << getKmerBases(i) << '\t' << kmerVector[i] << '\t' << queryKmerProfile[i] << endl;
+		}
+	}
+
 	double sumLogProb = 0.0000;
 	
 	double correction = pow((1.0/(double)numUniqueKmers), numSeqs) + 0.0001;
 	
 	for(int i=0;i<numPossibleKmers;i++){
 		
-		if(queryKmerProfile[i] != 0){			
-			sumLogProb += log(kmerVector[i] / numSeqs + correction);
+		if(queryKmerProfile[i] != 0){									//numUniqueKmers needs to be the value from Root;
+			sumLogProb += log((kmerVector[i] + correction) / (numSeqs + numUniqueKmers * correction));
 		}
 		
 	}
 	
-	sumLogProb /= (numSeqs + (double)numUniqueKmers * correction);
-	
+	cout << sumLogProb << endl;
+	cout << endl;	
+
 	return sumLogProb;
 }
 

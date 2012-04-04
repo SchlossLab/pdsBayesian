@@ -23,10 +23,14 @@ public:
 	double getPxGivenkj_D_j(string query);
 	double getSimToConsensus(string query);;
 	void checkTheta(){};
-	
+	void setNumUniqueKmers(int num)	{	numUniqueKmers = num;	}
+	int getNumUniqueKmers()			{	return numUniqueKmers;	}
+
+
 private:
 	vector<int> ripKmerProfile(string);
-
+	string getKmerBases(int);
+	
 	int kmerSize;								//	value of k
 	int numPossibleKmers;						//	4^kmerSize
 	int numUniqueKmers;							//	number of unique kmers seen in a group ~ O_kj
