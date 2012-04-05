@@ -87,10 +87,10 @@ int main(int argc, char *argv[]){
 		database = new KmerTree(referenceFileName, taxonomyFileName, kmerSize);	//build the tree structure that holds the reference
 	}
 	
-	string taxProbFileName = queryFileName.substr(0,queryFileName.find_last_of('.')) + ".tprob.taxonomy";
+	string taxProbFileName = queryFileName.substr(0,queryFileName.find_last_of('.')) + "." + method + ".tprob.taxonomy";
 	ofstream taxProbFile(taxProbFileName.c_str());
 
-    string levelProbFileName = queryFileName.substr(0,queryFileName.find_last_of('.')) + ".lprob.taxonomy";
+    string levelProbFileName = queryFileName.substr(0,queryFileName.find_last_of('.')) + "." + method + ".lprob.taxonomy";
 	ofstream levelProbFile(levelProbFileName.c_str());
 
 	int index = 1;

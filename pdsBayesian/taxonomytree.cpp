@@ -162,16 +162,12 @@ void TaxonomyTree::classifyQuery(string seqName, string querySequence, string& t
 
 	for(int i=0;i<numLevels;i++){
 		levelProbability[i] -= log(indices[i].size());	
-		cout << i << '\t' << indices[i].size() << '\t' << levelProbability[i] << endl;	
-	
 	}
 	
 	
 	allLevelSum = getLogExpSum(levelProbability, maxLevel);
 
 	double levelPosterior = exp(levelProbability[maxLevel] - allLevelSum);
-
-	cout << allLevelSum << '\t' << levelPosterior << endl;
 
 	sanityCheck(indices, maxIndex, maxLevel);
 	
