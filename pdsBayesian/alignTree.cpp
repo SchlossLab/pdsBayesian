@@ -15,7 +15,6 @@
 
 AlignTree::AlignTree(string referenceFileName, string taxonomyFileName){
 	
-	
 	TaxonomyNode* newNode = new AlignNode("Root", 0);
 	tree.push_back(newNode);			//	the tree is stored as a vector of elements of type TaxonomyNode
 
@@ -42,15 +41,16 @@ AlignTree::AlignTree(string referenceFileName, string taxonomyFileName){
 	referenceFile.close();
 	
 	numTaxa = (int)tree.size();
+	int dbSize = tree[0]->getNumSeqs();
 	
 	numLevels = 0;
 	for(int i=0;i<numTaxa;i++){
 		int level = tree[i]->getLevel();
 		if(level > numLevels){	numLevels = level;	}
         tree[i]->checkTheta();
+		tree[i]->setTotalSeqs(dbSize);
 	}
 	numLevels++;
-
 }
 
 /**************************************************************************************************/
@@ -86,7 +86,6 @@ void AlignTree::addTaxonomyToTree(string taxonomy, string sequence){
 			
 			tree[treePosition]->loadSequence(sequence);	//	now that we've gotten to the correct node, add the
 			//	sequence data to that node to update that node's theta - seems slow...				
-			
 			taxonName = "";								//	clear out the taxon name that we will build as we look 
 			level++;
 		}												//	for a semicolon
@@ -94,6 +93,31 @@ void AlignTree::addTaxonomyToTree(string taxonomy, string sequence){
 			taxonName += taxonomy[i];					//	keep adding letters until we reach a semicolon
 		}
 	}
+	
+}
+
+/**************************************************************************************************/
+
+double AlignTree::getOutlierLogProbability(string sequence){
+	
+	double count = 0;
+	
+	for(int i=0;i<sequence.length();i++){
+		
+		if(sequence[i] != '.'){	count++;	}
+		
+	}
+	
+	return count * log(0.2);
+}
+
+/**************************************************************************************************/
+
+void AlignTree::classifyQuery(string seqName, string querySequence, string& taxonProbabilityString, string& levelProbabilityString){
+	
+	double logPOutlier = getOutlierLogProbability(querySequence);
+	classifyGeneric(seqName, querySequence, logPOutlier, taxonProbabilityString, levelProbabilityString);
+		
 }
 
 /**************************************************************************************************/

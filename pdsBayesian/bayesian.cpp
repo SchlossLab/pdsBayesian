@@ -14,8 +14,8 @@
 #include "bayesian.h"
 #include "taxonomynode.h"
 #include "taxonomytree.h"
-#include "aligntree.h"
-#include "kmertree.h"
+#include "alignTree.h"
+#include "kmerTree.h"
 
 
 /**************************************************************************************************/

@@ -63,19 +63,19 @@ void AlignNode::checkTheta(){
         if(theta[i].gap == columnCounts[i]){
             columnCounts[i] = 0;
         }
-        else{
-            int maxCount = theta[i].A;
-            
-            if(theta[i].T > maxCount)   {    maxCount = theta[i].T;  }
-            if(theta[i].G > maxCount)   {    maxCount = theta[i].T;  }
-            if(theta[i].C > maxCount)   {    maxCount = theta[i].T;  }
-            if(theta[i].gap > maxCount) {    maxCount = theta[i].T;  }
-        
-            if(maxCount < columnCounts[i] * 0.25){// || maxCount == columnCounts[i]){   //remove any column where the maximum frequency is <50%
-                columnCounts[i] = 0;
-            }
-        }
-        
+//        else{
+//            int maxCount = theta[i].A;
+//            
+//            if(theta[i].T > maxCount)   {    maxCount = theta[i].T;  }
+//            if(theta[i].G > maxCount)   {    maxCount = theta[i].T;  }
+//            if(theta[i].C > maxCount)   {    maxCount = theta[i].T;  }
+//            if(theta[i].gap > maxCount) {    maxCount = theta[i].T;  }
+//        
+//            if(maxCount < columnCounts[i] * 0.25){// || maxCount == columnCounts[i]){   //remove any column where the maximum frequency is <50%
+//                columnCounts[i] = 0;
+//            }
+//        }
+
     }
     
 }
@@ -159,25 +159,18 @@ double AlignNode::getPxGivenkj_D_j(string query){	//P(x | k_j, D, j)
 			else if(base == '-'){	nkj_si = (double)thetaS.gap;	}
 			else if(base == 'U'){	nkj_si = (double)thetaS.T;		}	
 			
-			double alpha = pow(0.2, double(Nkj_s)) + 0.0001;	// option 0:  0.2 = 1/5; need to make 1e-4 a variable in future
+//			double alpha = pow(0.2, double(Nkj_s)) + 0.0001;	//need to make 1e-4 a variable in future
+//			if(nkj_si == Nkj_s){		alpha = 0;	}			//if the site isn't informative, ignore it
 
-//			double alpha = 0.2 + 0.0001;					//option 1
-
-//			if(nkj_si == Nkj_s){		alpha = 0;	}		//option 2
-
-//			double alpha = 0.2 + 0.0001;					//option 3
-//			if(nkj_si == Nkj_s){		alpha = 0;	}		//option 3
-
+			double alpha = 1 / (double)totalSeqs;
             double numerator = nkj_si + alpha;
             double denomenator = Nkj_s + 5.0 * alpha;
             
-            PxGivenkj_D_j += log(numerator) - log(denomenator);
-
+            PxGivenkj_D_j += log(numerator) - log(denomenator);		
             count++;
 		}
 	}
 
-	
 	if(count == 0){	PxGivenkj_D_j = -1e10;	}	
 	
 	return PxGivenkj_D_j;

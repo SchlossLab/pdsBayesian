@@ -34,8 +34,6 @@ public:
     void printTheta();
 	double getPxGivenkj_D_j(string query);	//P(x | k_j, D, j)
 	double getSimToConsensus(string query);
-    
-	
 	
 private:
 

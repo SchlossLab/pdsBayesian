@@ -25,21 +25,6 @@ TaxonomyTree::~TaxonomyTree(){
 
 /**************************************************************************************************/
 
-double TaxonomyTree::getOutlierLogProbability(string sequence){
-	
-	double count = 0;
-	
-	for(int i=0;i<sequence.length();i++){
-		
-		if(sequence[i] != '.'){	count++;	}
-		
-	}
-	
-	return count * log(0.2);
-}
-
-/**************************************************************************************************/
-
 double TaxonomyTree::getLogExpSum(vector<double> probabilities, int& maxIndex){
 	
 //	http://jblevins.org/notes/log-sum-exp
@@ -78,7 +63,6 @@ int TaxonomyTree::getMinRiskIndex(string sequence, vector<int> taxaIndices, vect
 	vector<double> risk(numProbs, 0);
 
 	for(int i=1;i<numProbs;i++){ //use if you want the outlier group
-//	for(int i=0;i<numProbs;i++){
 		G[i] = tree[taxaIndices[i]]->getSimToConsensus(sequence);
 	}
 	
@@ -119,13 +103,12 @@ void TaxonomyTree::sanityCheck(vector<vector<int> > indices, vector<int> maxIndi
 
 /**************************************************************************************************/
 
-void TaxonomyTree::classifyQuery(string seqName, string querySequence, string& taxonProbabilityString, string& levelProbabilityString){
+void TaxonomyTree::classifyGeneric(string seqName, string querySequence, float logPOutlier, string& taxonProbabilityString, string& levelProbabilityString){
 	
-	double logPOutlier = -10000;//getOutlierLogProbability(querySequence);
 
 	vector<vector<double> > pXgivenKj_D_j(numLevels);
 	vector<vector<int> > indices(numLevels);
-	for(int i=0;i<numLevels;i++){               //comment out to remove outlier group
+	for(int i=0;i<numLevels;i++){
 		pXgivenKj_D_j[i].push_back(logPOutlier);
 		indices[i].push_back(-1);
 	}
@@ -136,40 +119,55 @@ void TaxonomyTree::classifyQuery(string seqName, string querySequence, string& t
 		indices[tree[i]->getLevel()].push_back(i);
 	}
 	
-	vector<double> levelProbability(numLevels, 0);
+	vector<double> sumLikelihood(numLevels, 0);
 	vector<double> bestPosterior(numLevels, 0);
 	vector<int> maxIndex(numLevels, 0);
+	int maxPosteriorIndex;
 	
+	
+	//let's find the best level and taxa within that level
+	for(int i=0;i<numLevels;i++){ //go across all j's - from the root to genus
 
-	for(int i=0;i<numLevels;i++){
-		
-		levelProbability[i] = getLogExpSum(pXgivenKj_D_j[i], maxIndex[i]);
 		int numTaxaInLevel = (int)indices[i].size();
 		
-		vector<double> posteriors(numTaxaInLevel, 0);
+		vector<double> posteriors(numTaxaInLevel, 0);		
+		sumLikelihood[i] = getLogExpSum(pXgivenKj_D_j[i], maxPosteriorIndex);
 		
+		maxPosteriorIndex = 0;
 		for(int j=0;j<numTaxaInLevel;j++){
-			posteriors[j] = exp(pXgivenKj_D_j[i][j] - levelProbability[i]);
+			posteriors[j] = exp(pXgivenKj_D_j[i][j] - sumLikelihood[i]);
+			if(posteriors[j] > posteriors[maxPosteriorIndex]){	
+				maxPosteriorIndex = j;
+			}
+				
 		}
 		
-		maxIndex[i] = getMinRiskIndex(querySequence, indices[i], posteriors);
-
-		bestPosterior[i] = posteriors[maxIndex[i]];
+		
+		//maxIndex[i] = getMinRiskIndex(querySequence, indices[i], posteriors);	//should perhaps fix this in the future
+		maxIndex[i] = maxPosteriorIndex;
+		bestPosterior[i] = posteriors[maxIndex[i]];	
 	}
-	int maxLevel = 0;
 
-	double allLevelSum = getLogExpSum(levelProbability, maxLevel);
+	vector<double> pX_level(numLevels, 0);
 
 	for(int i=0;i<numLevels;i++){
-		levelProbability[i] -= log(indices[i].size());	
+		pX_level[i] = pXgivenKj_D_j[i][maxIndex[i]] - tree[indices[i][maxIndex[i]]]->getNumSeqs();
+	}
+
+	int max_pLevel_X_index = -1;
+	double pX_level_sum = getLogExpSum(pX_level, max_pLevel_X_index);
+	double max_pLevel_X = exp(pX_level[max_pLevel_X_index] - pX_level_sum);
+	
+	vector<double> pLevel_X(numLevels, 0);
+	for(int i=0;i<numLevels;i++){
+		pLevel_X[i] = exp(pX_level[i] - pX_level_sum);
 	}
 	
 	
-	allLevelSum = getLogExpSum(levelProbability, maxLevel);
+	
+	
+	sanityCheck(indices, maxIndex, max_pLevel_X_index);
 
-	double levelPosterior = exp(levelProbability[maxLevel] - allLevelSum);
-
-	sanityCheck(indices, maxIndex, maxLevel);
 	
 	stringstream taxonProbabilityOutput;
 	taxonProbabilityOutput.setf(ios::fixed, ios::floatfield);
@@ -180,17 +178,17 @@ void TaxonomyTree::classifyQuery(string seqName, string querySequence, string& t
 	levelProbabilityOutput.setf(ios::showpoint);
 
     
-	taxonProbabilityOutput << seqName << '(' << maxLevel << ';' << levelPosterior << ')' << '\t';
-	levelProbabilityOutput << seqName << '(' << maxLevel << ';' << levelPosterior << ')' << '\t';
+	taxonProbabilityOutput << seqName << '(' << max_pLevel_X_index << ';' << max_pLevel_X << ')' << '\t';
+	levelProbabilityOutput << seqName << '(' << max_pLevel_X_index << ';' << max_pLevel_X << ')' << '\t';
 
 	for(int i=1;i<numLevels;i++){
 		if(indices[i][maxIndex[i]] != -1){
 			taxonProbabilityOutput << tree[indices[i][maxIndex[i]]]->getName() << '(' << setprecision(6) << bestPosterior[i] << ");";
-			levelProbabilityOutput << tree[indices[i][maxIndex[i]]]->getName() << '(' << setprecision(6) << exp(levelProbability[i] - allLevelSum) << ");";
+			levelProbabilityOutput << tree[indices[i][maxIndex[i]]]->getName() << '(' << setprecision(6) << pLevel_X[i] << ");";
 		}
 		else{
 			taxonProbabilityOutput << "incertae_sedis" << '(' << setprecision(6) << bestPosterior[i] << ");";
-			levelProbabilityOutput << "incertae_sedis" << '(' << setprecision(6) << exp(levelProbability[i] - allLevelSum) << ");";
+			levelProbabilityOutput << "incertae_sedis" << '(' << setprecision(6) << pLevel_X[i] << ");";
 		}
 
 	}

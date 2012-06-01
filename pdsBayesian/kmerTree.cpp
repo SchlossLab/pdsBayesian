@@ -35,23 +35,45 @@ KmerTree::KmerTree(string referenceFileName, string taxonomyFileName, int k) : k
 		referenceFile >> refName >> refSequence;	//	read in fasta-formatted data - should replace with mothur command
 		refName = refName.substr(1);				//	remove the ">" character in front of the sequence name
 		refTaxonomy = taxonomyData[refName];		//	lookup the taxonomy string for the current reference sequence
-		addTaxonomyToTree(refTaxonomy, refSequence);
+		string degapRefSeq = deGap(refSequence);
+		addTaxonomyToTree(refTaxonomy, degapRefSeq);
 		gobble(referenceFile);						//	removes extra whitespace
 	}
 	referenceFile.close();
 	
 	numTaxa = (int)tree.size();
-	
+	int dbSize = tree[0]->getNumSeqs();
+
 	numLevels = 0;
 	for(int i=0;i<numTaxa;i++){
 		int level = tree[i]->getLevel();
 		if(level > numLevels){	numLevels = level;	}
         tree[i]->checkTheta();
 		tree[i]->setNumUniqueKmers(tree[0]->getNumUniqueKmers());
+		tree[i]->setTotalSeqs(dbSize);
 	}
 	numLevels++;
 
 }
+
+/**************************************************************************************************/
+
+string KmerTree::deGap(string alignedSeq){
+	
+	int length = (int)alignedSeq.length();
+	string unalignedSeq = "";
+	
+	for(int i=0;i<length;i++){
+		
+		char base = alignedSeq[i];
+		if(base != '.' && base != '-'){
+			unalignedSeq += base;
+		}
+	}
+	
+	return unalignedSeq;
+}
+
 
 /**************************************************************************************************/
 
@@ -97,6 +119,18 @@ void KmerTree::addTaxonomyToTree(string taxonomy, string sequence){
 		
 		}
 	}
+}
+
+/**************************************************************************************************/
+
+void KmerTree::classifyQuery(string seqName, string querySequence, string& taxonProbabilityString, string& levelProbabilityString){
+	
+	double logPOutlier = (querySequence.length() - kmerSize + 1) * log(1/tree[0]->getNumUniqueKmers());
+	
+	string unalignedSeq = deGap(querySequence);
+	
+	classifyGeneric(seqName, unalignedSeq, logPOutlier, taxonProbabilityString, levelProbabilityString);
+	
 }
 
 /**************************************************************************************************/

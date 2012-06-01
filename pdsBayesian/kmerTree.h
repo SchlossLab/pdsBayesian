@@ -15,10 +15,12 @@ class KmerTree : public TaxonomyTree {
 public:
 	KmerTree(string, string, int);
 	void addTaxonomyToTree(string, string);
-	
+	void classifyQuery(string, string, string&, string&);
+
 private:
 	int kmerSize;
-	
+	string deGap(string);
+
 };
 
 #endif

@@ -89,35 +89,36 @@ string KmerNode::getKmerBases(int kmerNumber){
 
 /**********************************************************************************************************************/
 
-vector<int> KmerNode::ripKmerProfile(string alignSequence){
+vector<int> KmerNode::ripKmerProfile(string sequence){
 
 	int power4s[14] = { 1, 4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 };
 
-	string unalignSequence;
-	
-	int alignLength = (int)alignSequence.length();	//	this function runs through the alignment and increments the frequency
-												//	of each base for a particular taxon.  we are building the thetas
-	
-	for(int i=0;i<alignLength;i++){
-		if(alignSequence[i] != '.' && alignSequence[i] != '-'){
-			unalignSequence += alignSequence[i];			
-		}
-	}
+//	assume all input sequences are unaligned
+//	string unalignSequence;
+//	
+//	int alignLength = (int)alignSequence.length();	//	this function runs through the alignment and increments the frequency
+//												//	of each base for a particular taxon.  we are building the thetas
+//	
+//	for(int i=0;i<alignLength;i++){
+//		if(alignSequence[i] != '.' && alignSequence[i] != '-'){
+//			unalignSequence += alignSequence[i];			
+//		}
+//	}
 
 	
-	int nKmers = (int)unalignSequence.length() - kmerSize + 1;
+	int nKmers = (int)sequence.length() - kmerSize + 1;
 	
 	vector<int> kmerProfile(numPossibleKmers + 1, 0);
 	
 	for(int i=0;i<nKmers;i++){
 		int kmer = 0;
 		for(int j=0;j<kmerSize;j++){
-			if(toupper(unalignSequence[j+i]) == 'A')		{	kmer += (0 * power4s[kmerSize-j-1]);	}
-			else if(toupper(unalignSequence[j+i]) == 'C')	{	kmer += (1 * power4s[kmerSize-j-1]);	}
-			else if(toupper(unalignSequence[j+i]) == 'G')	{	kmer += (2 * power4s[kmerSize-j-1]);	}
-			else if(toupper(unalignSequence[j+i]) == 'U')	{	kmer += (3 * power4s[kmerSize-j-1]);	}
-			else if(toupper(unalignSequence[j+i]) == 'T')	{	kmer += (3 * power4s[kmerSize-j-1]);	}
-			else											{	kmer = power4s[kmerSize]; j = kmerSize;	}
+			if(toupper(sequence[j+i]) == 'A')		{	kmer += (0 * power4s[kmerSize-j-1]);	}
+			else if(toupper(sequence[j+i]) == 'C')	{	kmer += (1 * power4s[kmerSize-j-1]);	}
+			else if(toupper(sequence[j+i]) == 'G')	{	kmer += (2 * power4s[kmerSize-j-1]);	}
+			else if(toupper(sequence[j+i]) == 'U')	{	kmer += (3 * power4s[kmerSize-j-1]);	}
+			else if(toupper(sequence[j+i]) == 'T')	{	kmer += (3 * power4s[kmerSize-j-1]);	}
+			else									{	kmer = power4s[kmerSize]; j = kmerSize;	}
 		}
 		kmerProfile[kmer] = 1;
 	}
@@ -153,17 +154,17 @@ double KmerNode::getPxGivenkj_D_j(string query)	{
 	vector<int> queryKmerProfile = ripKmerProfile(query);
 	
 	double sumLogProb = 0.0000;
-	double correction = pow((1.0/(double)numUniqueKmers), numSeqs) + 0.0001;
+	double alpha = 1.0 / (double)totalSeqs;
 
 	for(int i=0;i<numPossibleKmers;i++){
 		
 		if(queryKmerProfile[i] != 0){									//numUniqueKmers needs to be the value from Root;
-			sumLogProb += log((kmerVector[i] + correction) / (numSeqs + numUniqueKmers * correction));
+			sumLogProb += log((kmerVector[i] + alpha) / (numSeqs + numUniqueKmers * alpha));
 		}
 		
 	}
-	
 	return sumLogProb;
+
 }
 
 /**********************************************************************************************************************/

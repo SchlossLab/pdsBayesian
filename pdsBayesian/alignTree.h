@@ -15,9 +15,12 @@ class AlignTree : public TaxonomyTree {
 public:
 	AlignTree(string, string);
 	void addTaxonomyToTree(string, string);
+	void classifyQuery(string, string, string&, string&);
 	
 private:
-	
+	int numSeqs;
+	double getOutlierLogProbability(string);
+
 };
 
 #endif

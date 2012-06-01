@@ -33,6 +33,7 @@ public:
 	int getChildIndex(string);
 	int	getNumKids();
 	int getNumSeqs();
+	void setTotalSeqs(int);
 	int getLevel();
 	
 	virtual void loadSequence(string) = 0;
@@ -52,6 +53,7 @@ private:
 	
 protected:
 	int numSeqs;
+	int totalSeqs;
 	string name;
 	
 };

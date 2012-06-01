@@ -18,13 +18,13 @@ public:
 	TaxonomyTree(){};
 	~TaxonomyTree();
 	virtual void addTaxonomyToTree(string, string) = 0;
-	void classifyQuery(string, string, string&, string&);
+	virtual void classifyQuery(string, string, string&, string&) = 0;
 
 protected:
-	double getOutlierLogProbability(string);
 	double getLogExpSum(vector<double>, int&);
 	int getMinRiskIndex(string, vector<int>, vector<double>);
 	void sanityCheck(vector<vector<int> >, vector<int>, int&);
+	void classifyGeneric(string, string, float, string&, string&);
 				   
 	vector<TaxonomyNode*> tree;
 	int numTaxa;
