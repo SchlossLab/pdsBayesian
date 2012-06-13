@@ -35,7 +35,7 @@ double TaxonomyTree::getLogExpSum(vector<double> probabilities, int& maxIndex){
 	int numProbs = (int)probabilities.size();
 	
 	for(int i=1;i<numProbs;i++){
-		if(probabilities[i] > maxProb){
+		if(probabilities[i] >= maxProb){
 			maxProb = probabilities[i];
 			maxIndex = i;
 		}

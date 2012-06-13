@@ -145,12 +145,12 @@ double AlignNode::getPxGivenkj_D_j(string query){	//P(x | k_j, D, j)
 	for(int s=0;s<alignLength;s++){
 		
 		char base = query[s];
-		    
+		thetaAlign thetaS = theta[s];
+ 
 		if(base != '.' && base != 'N' && columnCounts[s] != 0){
 			double Nkj_s = (double)columnCounts[s];	
 			double nkj_si = 0;
 			
-			thetaAlign thetaS = theta[s];
 			
 			if(base == 'A')		{	nkj_si = (double)thetaS.A;		}
 			else if(base == 'T'){	nkj_si = (double)thetaS.T;		}	
@@ -169,6 +169,11 @@ double AlignNode::getPxGivenkj_D_j(string query){	//P(x | k_j, D, j)
             PxGivenkj_D_j += log(numerator) - log(denomenator);		
             count++;
 		}
+		if(base != '.' && columnCounts[s] == 0 && thetaS.gap == 0){
+			count = 0;
+			break;
+		}
+
 	}
 
 	if(count == 0){	PxGivenkj_D_j = -1e10;	}	
