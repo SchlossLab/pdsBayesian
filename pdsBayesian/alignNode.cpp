@@ -159,10 +159,9 @@ double AlignNode::getPxGivenkj_D_j(string query){	//P(x | k_j, D, j)
 			else if(base == '-'){	nkj_si = (double)thetaS.gap;	}
 			else if(base == 'U'){	nkj_si = (double)thetaS.T;		}	
 			
-//			double alpha = pow(0.2, double(Nkj_s)) + 0.0001;	//need to make 1e-4 a variable in future
-//			if(nkj_si == Nkj_s){		alpha = 0;	}			//if the site isn't informative, ignore it
+			double alpha = pow(0.2, double(Nkj_s)) + 0.0001;	//need to make 1e-4 a variable in future
 
-			double alpha = 1 / (double)totalSeqs;
+//			double alpha = 1 / (double)totalSeqs;	//flat prior
             double numerator = nkj_si + alpha;
             double denomenator = Nkj_s + 5.0 * alpha;
             
