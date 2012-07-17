@@ -141,7 +141,8 @@ double AlignNode::getPxGivenkj_D_j(string query){	//P(x | k_j, D, j)
 	double PxGivenkj_D_j = 0;
 	
 	int count = 0;
-	
+	double alpha = 1 / (double)totalSeqs;	//flat prior
+
 	for(int s=0;s<alignLength;s++){
 		
 		char base = query[s];
@@ -159,14 +160,15 @@ double AlignNode::getPxGivenkj_D_j(string query){	//P(x | k_j, D, j)
 			else if(base == '-'){	nkj_si = (double)thetaS.gap;	}
 			else if(base == 'U'){	nkj_si = (double)thetaS.T;		}	
 			
-			double alpha = pow(0.2, double(Nkj_s)) + 0.0001;	//need to make 1e-4 a variable in future
+//			double alpha = pow(0.2, double(Nkj_s)) + 0.0001;	//need to make 1e-4 a variable in future
 
-//			double alpha = 1 / (double)totalSeqs;	//flat prior
-            double numerator = nkj_si + alpha;
-            double denomenator = Nkj_s + 5.0 * alpha;
-            
-            PxGivenkj_D_j += log(numerator) - log(denomenator);		
-            count++;
+			if(columnCounts[s] != nkj_si){						//deal only with segregating sites...
+				double numerator = nkj_si + alpha;
+				double denomenator = Nkj_s + 5.0 * alpha;
+				
+				PxGivenkj_D_j += log(numerator) - log(denomenator);		
+				count++;
+			}
 		}
 		if(base != '.' && columnCounts[s] == 0 && thetaS.gap == 0){
 			count = 0;
