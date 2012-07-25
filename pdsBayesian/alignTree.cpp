@@ -116,7 +116,7 @@ double AlignTree::getOutlierLogProbability(string sequence){
 void AlignTree::classifyQuery(string seqName, string querySequence, string& taxonProbabilityString, string& levelProbabilityString){
 	
 	double logPOutlier = getOutlierLogProbability(querySequence);
-	classifyGeneric(seqName, querySequence, logPOutlier, taxonProbabilityString, levelProbabilityString);
+	classifyGeneric(seqName, querySequence, logPOutlier, taxonProbabilityString, levelProbabilityString, "align");
 		
 }
 

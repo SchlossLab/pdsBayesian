@@ -129,7 +129,7 @@ void KmerTree::classifyQuery(string seqName, string querySequence, string& taxon
 	
 	string unalignedSeq = deGap(querySequence);
 	
-	classifyGeneric(seqName, unalignedSeq, logPOutlier, taxonProbabilityString, levelProbabilityString);
+	classifyGeneric(seqName, unalignedSeq, logPOutlier, taxonProbabilityString, levelProbabilityString, "kmer");
 	
 }
 

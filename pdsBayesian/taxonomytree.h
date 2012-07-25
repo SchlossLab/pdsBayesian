@@ -22,9 +22,10 @@ public:
 
 protected:
 	double getLogExpSum(vector<double>, int&);
-	int getMinRiskIndex(string, vector<int>, vector<double>);
+	int getMinRiskIndexAlign(string, vector<int>, vector<double>);
+	int getMinRiskIndexKmer(string, vector<int>, vector<double>);
 	void sanityCheck(vector<vector<int> >, vector<int>, int&);
-	void classifyGeneric(string, string, float, string&, string&);
+	void classifyGeneric(string, string, float, string&, string&, string);
 				   
 	vector<TaxonomyNode*> tree;
 	int numTaxa;

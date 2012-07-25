@@ -160,15 +160,15 @@ double AlignNode::getPxGivenkj_D_j(string query){	//P(x | k_j, D, j)
 			else if(base == '-'){	nkj_si = (double)thetaS.gap;	}
 			else if(base == 'U'){	nkj_si = (double)thetaS.T;		}	
 			
-//			double alpha = pow(0.2, double(Nkj_s)) + 0.0001;	//need to make 1e-4 a variable in future
+//			double alpha = pow(0.2, double(Nkj_s)) + 0.0001;	//need to make 1e-4 a variable in future; this is the non-flat prior
 
-			if(columnCounts[s] != nkj_si){						//deal only with segregating sites...
+//			if(columnCounts[s] != nkj_si){						//deal only with segregating sites...
 				double numerator = nkj_si + alpha;
 				double denomenator = Nkj_s + 5.0 * alpha;
 				
 				PxGivenkj_D_j += log(numerator) - log(denomenator);		
 				count++;
-			}
+//			}
 		}
 		if(base != '.' && columnCounts[s] == 0 && thetaS.gap == 0){
 			count = 0;

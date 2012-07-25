@@ -55,13 +55,46 @@ double TaxonomyTree::getLogExpSum(vector<double> probabilities, int& maxIndex){
 
 /**************************************************************************************************/
 
-int TaxonomyTree::getMinRiskIndex(string sequence, vector<int> taxaIndices, vector<double> probabilities){
+int TaxonomyTree::getMinRiskIndexAlign(string sequence, vector<int> taxaIndices, vector<double> probabilities){
 	
 	int numProbs = (int)probabilities.size();
 	
 	vector<double> G(numProbs, 0.2);	//a random sequence will, on average, be 20% similar to any other sequence
 	vector<double> risk(numProbs, 0);
 
+	for(int i=1;i<numProbs;i++){ //use if you want the outlier group
+		G[i] = tree[taxaIndices[i]]->getSimToConsensus(sequence);
+	}
+	
+	double minRisk = 1e6;
+	int minRiskIndex = 0;
+	
+	for(int i=0;i<numProbs;i++){
+		
+		for(int j=0;j<numProbs;j++){
+			if(i != j){
+				risk[i] += probabilities[j] * G[j];
+			}			
+		}
+		
+		if(risk[i] < minRisk){
+			minRisk = risk[i];
+			minRiskIndex = i;
+		}
+	}
+	
+	return minRiskIndex;
+}
+
+/**************************************************************************************************/
+
+int TaxonomyTree::getMinRiskIndexKmer(string sequence, vector<int> taxaIndices, vector<double> probabilities){
+	
+	int numProbs = (int)probabilities.size();
+	
+	vector<double> G(numProbs, 0.2);	//a random sequence will, on average, be 20% similar to any other sequence; not sure that this holds up for kmers; whatever.
+	vector<double> risk(numProbs, 0);
+	
 	for(int i=1;i<numProbs;i++){ //use if you want the outlier group
 		G[i] = tree[taxaIndices[i]]->getSimToConsensus(sequence);
 	}
@@ -103,7 +136,7 @@ void TaxonomyTree::sanityCheck(vector<vector<int> > indices, vector<int> maxIndi
 
 /**************************************************************************************************/
 
-void TaxonomyTree::classifyGeneric(string seqName, string querySequence, float logPOutlier, string& taxonProbabilityString, string& levelProbabilityString){
+void TaxonomyTree::classifyGeneric(string seqName, string querySequence, float logPOutlier, string& taxonProbabilityString, string& levelProbabilityString, string method){
 	
 
 	vector<vector<double> > pXgivenKj_D_j(numLevels);
@@ -142,8 +175,13 @@ void TaxonomyTree::classifyGeneric(string seqName, string querySequence, float l
 				
 		}
 		
+		if(method == "kmer"){		
+			maxIndex[i] = getMinRiskIndexKmer(querySequence, indices[i], posteriors);
+		}
+		else{
+			maxIndex[i] = getMinRiskIndexAlign(querySequence, indices[i], posteriors);
+		}
 		
-		//maxIndex[i] = getMinRiskIndex(querySequence, indices[i], posteriors);	//should perhaps fix this in the future
 		maxIndex[i] = maxPosteriorIndex;
 		bestPosterior[i] = posteriors[maxIndex[i]];	
 	}

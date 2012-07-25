@@ -132,19 +132,15 @@ double KmerNode::getSimToConsensus(string query){
 	
 	vector<int> queryKmerProfile = ripKmerProfile(query);
 
-	double sum = 0;
-	double length = 0;
+	double present = 0;
 	
 	for(int i=0;i<numPossibleKmers;i++){
-		if(queryKmerProfile[i] != 0){
-		
-			sum += (double)kmerVector[i] / (double)numSeqs;
-			length++;
-			
+		if(queryKmerProfile[i] != 0 && kmerVector[i] != 0){
+			present++;
 		}
 	}	
 	
-	return sum / length;
+	return present / double(queryKmerProfile.size() - kmerSize + 1);
 }
 
 /**********************************************************************************************************************/
@@ -159,7 +155,7 @@ double KmerNode::getPxGivenkj_D_j(string query)	{
 
 	for(int i=0;i<numPossibleKmers;i++){
 		
-		if(queryKmerProfile[i] != 0){									//numUniqueKmers needs to be the value from Root;
+		if(queryKmerProfile[i] != 0){		//numUniqueKmers needs to be the value from Root;
 			sumLogProb += log((kmerVector[i] + alpha) / (numSeqs + numUniqueKmers * alpha));
 		}
 		
