@@ -150,8 +150,8 @@ double KmerNode::getPxGivenkj_D_j(string query)	{
 	vector<int> queryKmerProfile = ripKmerProfile(query);
 	
 	double sumLogProb = 0.0000;
-//	double alpha = 1.0 / (double)totalSeqs;	//flat prior
-	double alpha = pow((1.0 / (double)numUniqueKmers), numSeqs)+0.0001;	//non-flat prior
+	double alpha = 1.0 / (double)totalSeqs;	//flat prior
+//	double alpha = pow((1.0 / (double)numUniqueKmers), numSeqs)+0.0001;	//non-flat prior
 
 	for(int i=0;i<numPossibleKmers;i++){
 		
