@@ -25,9 +25,7 @@ KmerNode::KmerNode(string s, int l, int n) : TaxonomyNode(s, l), kmerSize(n) {
 
 /**********************************************************************************************************************/
 
-void KmerNode::loadSequence(string sequence){
-	
-	vector<int> kmerProfile = ripKmerProfile(sequence);
+void KmerNode::loadSequence(vector<int>& kmerProfile){
 	
 	for(int i=0;i<numPossibleKmers;i++){
 		if(kmerVector[i] == 0 && kmerProfile[i] != 0)	{	numUniqueKmers++;	}
@@ -37,20 +35,6 @@ void KmerNode::loadSequence(string sequence){
 
 	numSeqs++;
 }	
-
-/**********************************************************************************************************************/
-
-void KmerNode::printTheta(){
-	
-	cout << name << endl;
-	for(int i=0;i<numPossibleKmers;i++){
-		if(kmerVector[i] != 0){
-			cout << getKmerBases(i) << '\t' << kmerVector[i] << endl;
-		}
-	}
-	cout << endl;	
-	
-}
 
 /**********************************************************************************************************************/
 
@@ -87,51 +71,68 @@ string KmerNode::getKmerBases(int kmerNumber){
 	return kmer;
 }
 
+/**************************************************************************************************/
+
+void KmerNode::addThetas(vector<int> newTheta, int newNumSeqs){
+	
+	for(int i=0;i<numPossibleKmers;i++){
+		kmerVector[i] += newTheta[i];		
+	}
+	
+//	if(alignLength == 0){
+//		alignLength = (int)newTheta.size();
+//		theta.resize(alignLength);
+//		columnCounts.resize(alignLength);
+//	}
+//	
+//	for(int i=0;i<alignLength;i++){	
+//		theta[i].A += newTheta[i].A;		columnCounts[i] += newTheta[i].A;
+//		theta[i].T += newTheta[i].T;		columnCounts[i] += newTheta[i].T;
+//		theta[i].G += newTheta[i].G;		columnCounts[i] += newTheta[i].G;
+//		theta[i].C += newTheta[i].C;		columnCounts[i] += newTheta[i].C;
+//		theta[i].gap += newTheta[i].gap;	columnCounts[i] += newTheta[i].gap;
+//	}
+	
+	numSeqs += newNumSeqs;
+}
+
 /**********************************************************************************************************************/
 
-vector<int> KmerNode::ripKmerProfile(string sequence){
+int KmerNode::getNumUniqueKmers(){
 
-	int power4s[14] = { 1, 4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216, 67108864 };
-
-//	assume all input sequences are unaligned
-//	string unalignSequence;
-//	
-//	int alignLength = (int)alignSequence.length();	//	this function runs through the alignment and increments the frequency
-//												//	of each base for a particular taxon.  we are building the thetas
-//	
-//	for(int i=0;i<alignLength;i++){
-//		if(alignSequence[i] != '.' && alignSequence[i] != '-'){
-//			unalignSequence += alignSequence[i];			
-//		}
-//	}
-
-	
-	int nKmers = (int)sequence.length() - kmerSize + 1;
-	
-	vector<int> kmerProfile(numPossibleKmers + 1, 0);
-	
-	for(int i=0;i<nKmers;i++){
-		int kmer = 0;
-		for(int j=0;j<kmerSize;j++){
-			if(toupper(sequence[j+i]) == 'A')		{	kmer += (0 * power4s[kmerSize-j-1]);	}
-			else if(toupper(sequence[j+i]) == 'C')	{	kmer += (1 * power4s[kmerSize-j-1]);	}
-			else if(toupper(sequence[j+i]) == 'G')	{	kmer += (2 * power4s[kmerSize-j-1]);	}
-			else if(toupper(sequence[j+i]) == 'U')	{	kmer += (3 * power4s[kmerSize-j-1]);	}
-			else if(toupper(sequence[j+i]) == 'T')	{	kmer += (3 * power4s[kmerSize-j-1]);	}
-			else									{	kmer = power4s[kmerSize]; j = kmerSize;	}
-		}
-		kmerProfile[kmer] = 1;
-	}
+	if(numUniqueKmers == 0){
 		
-	return kmerProfile;	
+		for(int i=0;i<numPossibleKmers;i++){
+
+			if(kmerVector[i] != 0){
+				numUniqueKmers++;
+			}
+			
+		}
+		
+	}
+	
+	return numUniqueKmers;	
+}
+
+/**********************************************************************************************************************/
+
+void KmerNode::printTheta(){
+	
+	cout << name << endl;
+	for(int i=0;i<numPossibleKmers;i++){
+		if(kmerVector[i] != 0){
+			cout << getKmerBases(i) << '\t' << kmerVector[i] << endl;
+		}
+	}
+	cout << endl;	
+	
 }
 
 /**************************************************************************************************/
 
-double KmerNode::getSimToConsensus(string query){
+double KmerNode::getSimToConsensus(vector<int>& queryKmerProfile){
 	
-	vector<int> queryKmerProfile = ripKmerProfile(query);
-
 	double present = 0;
 	
 	for(int i=0;i<numPossibleKmers;i++){
@@ -145,9 +146,7 @@ double KmerNode::getSimToConsensus(string query){
 
 /**********************************************************************************************************************/
 
-double KmerNode::getPxGivenkj_D_j(string query)	{	
-
-	vector<int> queryKmerProfile = ripKmerProfile(query);
+double KmerNode::getPxGivenkj_D_j(vector<int>& queryKmerProfile)	{	
 	
 	double sumLogProb = 0.0000;
 	double alpha = 1.0 / (double)totalSeqs;	//flat prior

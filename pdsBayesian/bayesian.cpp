@@ -90,8 +90,8 @@ int main(int argc, char *argv[]){
 	string taxProbFileName = queryFileName.substr(0,queryFileName.find_last_of('.')) + "." + method + ".tprob.taxonomy";
 	ofstream taxProbFile(taxProbFileName.c_str());
 
-    string levelProbFileName = queryFileName.substr(0,queryFileName.find_last_of('.')) + "." + method + ".lprob.taxonomy";
-	ofstream levelProbFile(levelProbFileName.c_str());
+//    string levelProbFileName = queryFileName.substr(0,queryFileName.find_last_of('.')) + "." + method + ".lprob.taxonomy";
+//	ofstream levelProbFile(levelProbFileName.c_str());
 
 	int index = 1;
 	
@@ -109,10 +109,10 @@ int main(int argc, char *argv[]){
 		
 		gobble(queryFile);
 
-		database->classifyQuery(seqName, sequence, taxonProbOutput, levelProbOutput);
+		database->classifyQuery(seqName, sequence, taxonProbOutput);//, levelProbOutput);
 		
 		taxProbFile << taxonProbOutput << endl;
-        levelProbFile << levelProbOutput << endl;
+//        levelProbFile << levelProbOutput << endl;
 
 		if(index % 100 == 0){	cout << index << endl;	}
 		index++;
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]){
 	}
 	queryFile.close();
 	taxProbFile.close();
-	levelProbFile.close();
+//	levelProbFile.close();
 }
 
 /**************************************************************************************************/

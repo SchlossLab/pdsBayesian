@@ -16,6 +16,7 @@
 
 AlignNode::AlignNode(string n, int l): TaxonomyNode(n, l){
 
+	alignLength = 0;
 }
 
 /**************************************************************************************************/
@@ -30,10 +31,10 @@ void AlignNode::printTheta(){
 
 /**************************************************************************************************/
 
-void AlignNode::loadSequence(string sequence){
+void AlignNode::loadSequence(string& sequence){
 	
 	alignLength = (int)sequence.length();	//	this function runs through the alignment and increments the frequency
-	//	of each base for a particular taxon.  we are building the thetas
+											//	of each base for a particular taxon.  we are building the thetas
 	
 	if(theta.size() == 0){
 		theta.resize(alignLength);
@@ -82,7 +83,28 @@ void AlignNode::checkTheta(){
 
 /**************************************************************************************************/
 
-double AlignNode::getSimToConsensus(string query){
+void AlignNode::addThetas(vector<thetaAlign> newTheta, int newNumSeqs){
+	
+	if(alignLength == 0){
+		alignLength = (int)newTheta.size();
+		theta.resize(alignLength);
+		columnCounts.resize(alignLength);
+	}
+	
+	for(int i=0;i<alignLength;i++){	
+		theta[i].A += newTheta[i].A;		columnCounts[i] += newTheta[i].A;
+		theta[i].T += newTheta[i].T;		columnCounts[i] += newTheta[i].T;
+		theta[i].G += newTheta[i].G;		columnCounts[i] += newTheta[i].G;
+		theta[i].C += newTheta[i].C;		columnCounts[i] += newTheta[i].C;
+		theta[i].gap += newTheta[i].gap;	columnCounts[i] += newTheta[i].gap;
+	}
+	
+	numSeqs += newNumSeqs;
+}
+
+/**************************************************************************************************/
+
+double AlignNode::getSimToConsensus(string& query){
 	
 	double similarity = 0;
 	
@@ -136,13 +158,14 @@ double AlignNode::getSimToConsensus(string query){
 
 /**************************************************************************************************/
 
-double AlignNode::getPxGivenkj_D_j(string query){	//P(x | k_j, D, j)
+double AlignNode::getPxGivenkj_D_j(string& query){	//P(x | k_j, D, j)
 	
 	double PxGivenkj_D_j = 0;
 	
 	int count = 0;
 	double alpha = 1 / (double)totalSeqs;	//flat prior
-
+	
+	
 	for(int s=0;s<alignLength;s++){
 		
 		char base = query[s];

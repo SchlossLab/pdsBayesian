@@ -18,19 +18,19 @@ class KmerNode : public TaxonomyNode {
 	
 public:
 	KmerNode(string, int, int);
-	void loadSequence(string);
+	void loadSequence(vector<int>&);
 	void printTheta();
-	double getPxGivenkj_D_j(string query);
-	double getSimToConsensus(string query);;
+	double getPxGivenkj_D_j(vector<int>&);
+	double getSimToConsensus(vector<int>&);
 	void checkTheta(){};
 	void setNumUniqueKmers(int num)	{	numUniqueKmers = num;	}
-	int getNumUniqueKmers()			{	return numUniqueKmers;	}
+	int getNumUniqueKmers();
+	void addThetas(vector<int>, int);
+	vector<int> getTheta()	{	return kmerVector;	}
 
 
 private:
-	vector<int> ripKmerProfile(string);
 	string getKmerBases(int);
-	
 	int kmerSize;								//	value of k
 	int numPossibleKmers;						//	4^kmerSize
 	int numUniqueKmers;							//	number of unique kmers seen in a group ~ O_kj

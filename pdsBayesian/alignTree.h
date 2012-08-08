@@ -9,18 +9,24 @@
 #ifndef pdsBayesian_alignTree_h
 #define pdsBayesian_alignTree_h
 
+class AlignNode;
 
 class AlignTree : public TaxonomyTree {
 
 public:
 	AlignTree(string, string);
-	void addTaxonomyToTree(string, string);
-	void classifyQuery(string, string, string&, string&);
+	~AlignTree();
+	void addTaxonomyToTree(string&, string&);
+	void classifyQuery(string, string, string&);//, string&);
 	
 private:
-	int numSeqs;
-	double getOutlierLogProbability(string);
+	double getOutlierLogProbability(string&);
+	int getMinRiskIndexAlign(string&, vector<int>&, vector<double>&);
+	void aggregateThetas();
+	int sanityCheck(vector<vector<int> >&, vector<int>&);
 
+	int numSeqs;
+	vector<AlignNode*> tree;
 };
 
 #endif

@@ -29,18 +29,18 @@ class AlignNode : public TaxonomyNode {
 	
 public:
 	AlignNode(string, int);
-	void loadSequence(string);
+	void loadSequence(string&);
 	void checkTheta();
     void printTheta();
-	double getPxGivenkj_D_j(string query);	//P(x | k_j, D, j)
-	double getSimToConsensus(string query);
+	double getPxGivenkj_D_j(string& query);	//P(x | k_j, D, j)
+	double getSimToConsensus(string& query);
+	vector<thetaAlign> getTheta()	{	return theta;	}
+	void addThetas(vector<thetaAlign>, int);
 	
 private:
-
 	vector<thetaAlign> theta;
 	vector<unsigned int> columnCounts;
 	int alignLength;
-	
 };
 
 /**************************************************************************************************/

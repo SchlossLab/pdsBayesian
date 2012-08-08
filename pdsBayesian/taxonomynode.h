@@ -36,16 +36,7 @@ public:
 	void setTotalSeqs(int);
 	int getLevel();
 	
-	virtual void loadSequence(string) = 0;
-    virtual void checkTheta() = 0;
-	virtual void printTheta() = 0;
-	virtual double getPxGivenkj_D_j(string query) = 0;	//P(x | k_j, D, j)
-	virtual double getSimToConsensus(string query) = 0;
-	virtual void setNumUniqueKmers(int)	{};
-	virtual int getNumUniqueKmers()		{	return 0;	};
-
 private:
-//	string name;
 	int parent;
 	map<string, int> children;
 	int numChildren;
@@ -55,7 +46,6 @@ protected:
 	int numSeqs;
 	int totalSeqs;
 	string name;
-	
 };
 
 /**************************************************************************************************/
